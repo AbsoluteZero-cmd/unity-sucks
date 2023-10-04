@@ -13,16 +13,16 @@ public class ChangeScene : MonoBehaviour
         fade = FindObjectOfType<FadeInOut>();
     }
 
-    public IEnumerator _ChangeScene()
+    public IEnumerator _ChangeScene(int sceneID)
     {
         fade.FadeIn();
         yield return new WaitForSeconds(1);
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(sceneID);
     }
 
     public void MoveToScene(int sceneID)
     {
-        StartCoroutine(_ChangeScene());
+        StartCoroutine(_ChangeScene(sceneID));
         /*SceneManager.LoadScene(sceneID);*/
     }
 }
