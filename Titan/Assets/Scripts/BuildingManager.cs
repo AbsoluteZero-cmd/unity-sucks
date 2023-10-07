@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class BuildingManager : MonoBehaviour
@@ -12,16 +9,21 @@ public class BuildingManager : MonoBehaviour
     public Tile[] tiles;
     public List<GameObject> UITiles;
 
-    public int selectedTile = -1;
+    private int selectedTile = -1;
 
     public Transform tileGridUI;
 
     public Texture2D cursorTexture;
 
-    public bool placingCursor = false;
+    private bool placingCursor = false;
+
+    // Array to track occupied cells
+    private bool[,] occupiedCells;
 
     private void Start()
     {
+        InitializeOccupiedCells();
+        
         int i = 0;
 
         foreach (Tile tile in tiles)
@@ -36,7 +38,7 @@ public class BuildingManager : MonoBehaviour
             Color tileColor = UIImage.color;
             tileColor.a = 0.5f;
 
-            if(i == selectedTile)
+            if (i == selectedTile)
             {
                 tileColor.a = 1f;
             }
@@ -45,7 +47,6 @@ public class BuildingManager : MonoBehaviour
             UITiles.Add(UITile);
 
             i++;
-
         }
 
         ChangeCursor();
@@ -53,57 +54,84 @@ public class BuildingManager : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1)) {
-            if (selectedTile == 0)
-            {
-                selectedTile = -1;
-            }
-            else selectedTile = 0;
-            placingCursor = !placingCursor;
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SelectTile(0);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (selectedTile == 1)
-            {
-                selectedTile = -1;
-            }
-            else selectedTile = 1;
-            placingCursor = !placingCursor;
+            SelectTile(1);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (selectedTile == 2)
-            {
-                selectedTile = -1;
-            }
-            else selectedTile = 2;
-            placingCursor = !placingCursor;
+            SelectTile(2);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            if (selectedTile == 3)
-            {
-                selectedTile = -1;
-            }
-            else selectedTile = 3;
-            placingCursor = !placingCursor;
-            
+            SelectTile(3);
         }
 
-        ChangeCursor();
+        if (Input.GetMouseButtonDown(0) && selectedTile != -1)
+        {
+        Vector3 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3Int cellPosition = tilemap.WorldToCell(position);
 
+        // Check if the cell is within the bounds of the Tilemap
+        if (tilemap.cellBounds.Contains(cellPosition))
+        {
+            // Check if the cell is occupied before placing a tile
+            if (!occupiedCells[cellPosition.x, cellPosition.y])
+            {
+                tilemap.SetTile(cellPosition, tiles[selectedTile]);
+                occupiedCells[cellPosition.x, cellPosition.y] = true;
+            }
+        }
+        }
+
+
+
+
+
+
+
+        ChangeCursor();
         RenderUITiles();
 
         if (Input.GetMouseButtonDown(0) && selectedTile != -1)
         {
             Vector3 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            tilemap.SetTile(tilemap.WorldToCell(position), tiles[selectedTile]);
+            Vector3Int cellPosition = tilemap.WorldToCell(position);
+
+            // Check if the cell is occupied before placing a tile
+            if (!occupiedCells[cellPosition.x, cellPosition.y])
+            {
+                tilemap.SetTile(cellPosition, tiles[selectedTile]);
+                occupiedCells[cellPosition.x, cellPosition.y] = true;
+            }
         }
+    }
+
+    private void InitializeOccupiedCells()
+    {
+        occupiedCells = new bool[tilemap.cellBounds.size.x, tilemap.cellBounds.size.y];
+    }
+
+    void SelectTile(int tileIndex)
+    {
+        if (selectedTile == tileIndex)
+        {
+            selectedTile = -1;
+        }
+        else
+        {
+            selectedTile = tileIndex;
+        }
+        placingCursor = selectedTile != -1;
     }
 
     void ChangeCursor()
     {
-        if (placingCursor == true)
+        if (placingCursor)
         {
             Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
         }
@@ -116,7 +144,7 @@ public class BuildingManager : MonoBehaviour
     private void RenderUITiles()
     {
         int i = 0;
-        foreach(GameObject tile in UITiles)
+        foreach (GameObject tile in UITiles)
         {
             Image UIImage = tile.GetComponent<Image>();
 
@@ -126,43 +154,14 @@ public class BuildingManager : MonoBehaviour
             {
                 tileColor.a = 1f;
             }
-            else { tileColor.a = 0.5f; }
+            else
+            {
+                tileColor.a = 0.5f;
+            }
 
             UIImage.color = tileColor;
 
             i++;
         }
-    }
-
-    void UpdateCursor()
-    {
-        
-
-        Tile tile = tiles[selectedTile];
-        Texture2D cursorTexture = textureFromSprite(tile.sprite);
-        
-        print(cursorTexture.isReadable ? "True" : "False");
-
-        if (tile != null)
-        {
-            // Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
-        }
-    }
-
-    public static Texture2D textureFromSprite(Sprite sprite)
-    {
-        if (sprite.rect.width != sprite.texture.width)
-        {
-            Texture2D newText = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
-            Color[] newColors = sprite.texture.GetPixels((int)sprite.textureRect.x,
-                                                         (int)sprite.textureRect.y,
-                                                         (int)sprite.textureRect.width,
-                                                         (int)sprite.textureRect.height);
-            newText.SetPixels(newColors);
-            newText.Apply();
-            return newText;
-        }
-        else
-            return sprite.texture;
     }
 }
