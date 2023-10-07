@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BuildingHealth : MonoBehaviour
 {
-    public int maxHealth = 10;
+    public int maxHealth = 100;
     private int currentHealth;
 
     private void Start()
@@ -20,18 +20,9 @@ public class BuildingHealth : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        // Проверяем столкновение с каплей дождя
-        if (collision.CompareTag("RainDrop"))
-        {
-            TakeDamage(10); // Применяем урон от капли дождя
-            Destroy(collision.gameObject); // Уничтожаем каплю дождя
-        }
-    }
-
     private void DestroyBuilding()
     {
-        Destroy(gameObject); // Уничтожаем объект при достижении нулевого здоровья
+        // Perform any cleanup or effects here (e.g., particle effects)
+        Destroy(gameObject); // Destroy the GameObject when health reaches zero
     }
 }
