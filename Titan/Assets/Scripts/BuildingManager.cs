@@ -18,6 +18,7 @@ public class BuildingManager : MonoBehaviour
     public int selectedBuilding = -1;
 
     public Transform tileGridUI;
+    public GameObject buttonPrefab;
 
 
     public Texture2D buildingCursorTexture;
@@ -37,9 +38,10 @@ public class BuildingManager : MonoBehaviour
     {
         int i = 0;
 
-        foreach (Tile tile in tiles)
+        foreach (Building building in buildings)
         {
-            GameObject UITile = new GameObject("UI Tile");
+            Tile tile = building.tile;
+            /*GameObject UITile = new GameObject("UI Tile");
             UITile.transform.parent = tileGridUI;
             UITile.transform.localScale = new Vector3(1f, 1f, 1f);
 
@@ -55,7 +57,19 @@ public class BuildingManager : MonoBehaviour
             }
 
             UIImage.color = tileColor;
-            UITiles.Add(UITile);
+            UITiles.Add(UITile);*/
+
+            GameObject UIButton = Instantiate(buttonPrefab, tileGridUI);
+            Button button = UIButton.GetComponent<Button>();
+
+            int index = i;
+            button.onClick.AddListener(() => OnButtonClick(index));
+
+            // Set button image based on the Building object's image
+            Image buttonImage = UIButton.GetComponent<Image>();
+            buttonImage.sprite = building.tile.sprite; // Assuming Image is a property of the Building class representing the sprite you want to use
+
+            UITiles.Add(UIButton);
 
             i++;
 
@@ -64,9 +78,26 @@ public class BuildingManager : MonoBehaviour
         ChangeCursor();
     }
 
+    void OnButtonClick(int selectedIndex)
+    {
+        // Handle button click here, you can use the index
+        Debug.Log("Button Clicked, Index: " + selectedIndex);
+
+        if (selectedBuilding == selectedIndex)
+        {
+            selectedBuilding = -1;
+            placingCursor = false;
+        }
+        else
+        {
+            selectedBuilding = selectedIndex;
+            placingCursor = true;
+        }
+    }
+
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1)) {
+        /*if(Input.GetKeyDown(KeyCode.Alpha1)) {
             if(selectedBuilding == 0)
             {
                 selectedBuilding = -1;
@@ -116,6 +147,12 @@ public class BuildingManager : MonoBehaviour
                 selectedBuilding = 3;
                 placingCursor = true;
             }
+        }*/
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            selectedBuilding = -1;
+            placingCursor = false;
         }
 
         ChangeCursor();
@@ -140,7 +177,7 @@ public class BuildingManager : MonoBehaviour
         {
             energy -= buildings[selectedBuilding].energyCost;
             Vector3 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            tilemap.SetTile(tilemap.WorldToCell(position), tiles[this.selectedBuilding]);
+            tilemap.SetTile(tilemap.WorldToCell(position), buildings[this.selectedBuilding].tile);
         }
     }
 

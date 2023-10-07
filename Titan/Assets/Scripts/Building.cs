@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 [System.Serializable]
 public class Building
@@ -15,7 +16,7 @@ public class Building
     public int foodPerTurn;
     public int oxygenPerTurn;
 
-    public GameObject UITile = new GameObject("UI Tile");
+    public Tile tile;
 
     public Building(int energyCost, int turnsTillBuilt, int energyPerTurn, int foodPerTurn, int oxygenPerTurn, GameObject UITile)
     {
