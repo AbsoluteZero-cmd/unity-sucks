@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -10,15 +12,26 @@ public class BuildingManager : MonoBehaviour
 {
     public Tilemap tilemap;
     public Tile[] tiles;
+    public List<Building> buildings = new List<Building>();
     public List<GameObject> UITiles;
 
-    public int selectedTile = -1;
+    public int selectedBuilding = -1;
 
     public Transform tileGridUI;
 
-    public Texture2D cursorTexture;
 
+    public Texture2D buildingCursorTexture;
+    public Texture2D initialCursorTexture;
     public bool placingCursor = false;
+
+    public TextMeshProUGUI energyText;
+    public TextMeshProUGUI foodText;
+    public TextMeshProUGUI oxygenText;
+
+    public int energy = 100;
+    public int food = 100;
+    public int oxygen = 100;
+
 
     private void Start()
     {
@@ -36,7 +49,7 @@ public class BuildingManager : MonoBehaviour
             Color tileColor = UIImage.color;
             tileColor.a = 0.5f;
 
-            if(i == selectedTile)
+            if(i == selectedBuilding)
             {
                 tileColor.a = 1f;
             }
@@ -54,50 +67,80 @@ public class BuildingManager : MonoBehaviour
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.Alpha1)) {
-            if (selectedTile == 0)
+            if(selectedBuilding == 0)
             {
-                selectedTile = -1;
+                selectedBuilding = -1;
+                placingCursor = false;
             }
-            else selectedTile = 0;
-            placingCursor = !placingCursor;
+            else
+            {
+                selectedBuilding = 0;
+                placingCursor = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (selectedTile == 1)
+            if (selectedBuilding == 1)
             {
-                selectedTile = -1;
+                selectedBuilding = -1;
+                placingCursor = false;
             }
-            else selectedTile = 1;
-            placingCursor = !placingCursor;
+            else
+            {
+                selectedBuilding = 1;
+                placingCursor = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            if (selectedTile == 2)
+            if (selectedBuilding == 2)
             {
-                selectedTile = -1;
+                selectedBuilding = -1;
+                placingCursor = false;
             }
-            else selectedTile = 2;
-            placingCursor = !placingCursor;
+            else
+            {
+                selectedBuilding = 2;
+                placingCursor = true;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            if (selectedTile == 3)
+            if (selectedBuilding == 3)
             {
-                selectedTile = -1;
+                selectedBuilding = -1;
+                placingCursor = false;
             }
-            else selectedTile = 3;
-            placingCursor = !placingCursor;
-            
+            else
+            {
+                selectedBuilding = 3;
+                placingCursor = true;
+            }
         }
 
         ChangeCursor();
 
         RenderUITiles();
 
-        if (Input.GetMouseButtonDown(0) && selectedTile != -1)
+        PutBuilding(selectedBuilding);
+
+        UpdatePoints();
+    }
+
+    void UpdatePoints()
+    {
+        energyText.text = energy.ToString();
+        foodText.text = food.ToString();
+        oxygenText.text = oxygen.ToString();
+    }
+
+    void PutBuilding(int selectedBuilding)
+    {
+        if (Input.GetMouseButtonDown(0) && this.selectedBuilding != -1)
         {
+            energy -= buildings[selectedBuilding].energyCost;
             Vector3 position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            tilemap.SetTile(tilemap.WorldToCell(position), tiles[selectedTile]);
+            tilemap.SetTile(tilemap.WorldToCell(position), tiles[this.selectedBuilding]);
         }
     }
 
@@ -105,11 +148,11 @@ public class BuildingManager : MonoBehaviour
     {
         if (placingCursor == true)
         {
-            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+            Cursor.SetCursor(buildingCursorTexture, Vector2.zero, CursorMode.ForceSoftware);
         }
         else
         {
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.ForceSoftware);
+            Cursor.SetCursor(initialCursorTexture, Vector2.zero, CursorMode.ForceSoftware);
         }
     }
 
@@ -122,7 +165,7 @@ public class BuildingManager : MonoBehaviour
 
             Color tileColor = UIImage.color;
 
-            if (i == selectedTile)
+            if (i == selectedBuilding)
             {
                 tileColor.a = 1f;
             }
@@ -138,7 +181,7 @@ public class BuildingManager : MonoBehaviour
     {
         
 
-        Tile tile = tiles[selectedTile];
+        Tile tile = tiles[selectedBuilding];
         Texture2D cursorTexture = textureFromSprite(tile.sprite);
         
         print(cursorTexture.isReadable ? "True" : "False");
