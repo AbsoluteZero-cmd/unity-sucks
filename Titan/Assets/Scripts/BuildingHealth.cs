@@ -2,37 +2,36 @@ using UnityEngine;
 
 public class BuildingHealth : MonoBehaviour
 {
-    public int maxHealth = 100; // Максимальное здоровье здания.
-    private int currentHealth;  // Текущее здоровье здания.
+    public int maxHealth = 10;
+    private int currentHealth;
 
     private void Start()
     {
-        currentHealth = maxHealth; // Изначально устанавливаем текущее здоровье равным максимальному.
+        currentHealth = maxHealth;
     }
 
-    // Метод для получения урона.
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        
+
         if (currentHealth <= 0)
         {
             DestroyBuilding();
         }
     }
 
-    // Метод для восстановления здоровья (например, лечение).
-    public void Heal(int amount)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        currentHealth += amount;
-        // Проверка, чтобы не превысить максимальное здоровье.
-        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        // Проверяем столкновение с каплей дождя
+        if (collision.CompareTag("RainDrop"))
+        {
+            TakeDamage(10); // Применяем урон от капли дождя
+            Destroy(collision.gameObject); // Уничтожаем каплю дождя
+        }
     }
 
-    // Метод для разрушения здания.
     private void DestroyBuilding()
     {
-        // Здесь вы можете воспроизвести анимацию разрушения или выполнить другие действия.
-        Destroy(gameObject);
+        Destroy(gameObject); // Уничтожаем объект при достижении нулевого здоровья
     }
 }

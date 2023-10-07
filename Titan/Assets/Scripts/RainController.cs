@@ -1,19 +1,20 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 
 public class RainController : MonoBehaviour
 {
-    public ParticleSystem rainParticleSystem;
-    public GameObject rainSignPrefab; // Reference to your rain sign prefab
+    public ParticleSystem ParticleSystem;
+    public GameObject rainSignPrefab;
+    public int rainDamage = 10; // Урон, наносимый дождем
 
-    private GameObject currentRainSign; // The currently displayed rain sign
+    private GameObject currentRainSign;
 
-    public float minDelay = 5f;  // Minimum delay in seconds
-    public float maxDelay = 15f; // Maximum delay in seconds
+    public float minDelay = 5f;
+    public float maxDelay = 15f;
+    public LayerMask buildingLayer;
 
     private void Start()
     {
-        // Start the coroutine to spawn rain at random intervals
         StartCoroutine(StartRain());
     }
 
@@ -21,31 +22,39 @@ public class RainController : MonoBehaviour
     {
         while (true)
         {
-            // Wait for a random amount of time before starting rain
             float delay = Random.Range(minDelay, maxDelay);
             yield return new WaitForSeconds(delay);
 
-            // Start the rain particle system
-            rainParticleSystem.Play();
+            ParticleSystem.Play();
 
-            // Instantiate the rain sign
             if (currentRainSign == null)
             {
                 currentRainSign = Instantiate(rainSignPrefab, transform.position, Quaternion.identity);
             }
 
-            // Wait for a random duration for the rain to continue
-            float rainDuration = Random.Range(5f, 10f); // Adjust the duration as needed
+            float rainDuration = Random.Range(5f, 10f);
             yield return new WaitForSeconds(rainDuration);
 
-            // Stop the rain particle system
-            rainParticleSystem.Stop();
+            ParticleSystem.Stop();
 
-            // Hide the rain sign
             if (currentRainSign != null)
             {
                 Destroy(currentRainSign);
                 currentRainSign = null;
+            }
+        }
+    }
+
+    private void Update()
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 1f, buildingLayer);
+
+        foreach (Collider2D hitCollider in hitColliders)
+        {
+            BuildingHealth building = hitCollider.GetComponent<BuildingHealth>();
+            if (building != null)
+            {
+                building.TakeDamage(rainDamage); // Наносим урон зданию
             }
         }
     }

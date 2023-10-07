@@ -557,6 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91e292f518974d94d83b4be0d3225577, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 10
 --- !u!1 &415265861
 GameObject:
   m_ObjectHideFlags: 0
@@ -9093,6 +9094,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b4a53aa93eddb943b8a1b3ed2e7b89b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ParticleSystem: {fileID: 1366614462}
+  rainSignPrefab: {fileID: 1366614460}
+  minDelay: 20
+  maxDelay: 30
 --- !u!114 &1366614465
 MonoBehaviour:
   m_ObjectHideFlags: 0
