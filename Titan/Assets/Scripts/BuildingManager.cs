@@ -19,7 +19,9 @@ public class BuildingManager : MonoBehaviour
 
     public Transform tileGridUI;
     public GameObject buttonPrefab;
+    public TextMeshProUGUI escText;
 
+    private bool[,] occupiedCells;
 
     public Texture2D buildingCursorTexture;
     public Texture2D initialCursorTexture;
@@ -33,9 +35,17 @@ public class BuildingManager : MonoBehaviour
     public int food = 100;
     public int oxygen = 100;
 
+    private void InitializeOccupiedCells()
+    {
+        occupiedCells = new bool[tilemap.cellBounds.size.x, tilemap.cellBounds.size.y];
+    }
+
 
     private void Start()
     {
+
+        InitializeOccupiedCells();
+
         int i = 0;
 
         foreach (Building building in buildings)
@@ -97,57 +107,7 @@ public class BuildingManager : MonoBehaviour
 
     private void Update()
     {
-        /*if(Input.GetKeyDown(KeyCode.Alpha1)) {
-            if(selectedBuilding == 0)
-            {
-                selectedBuilding = -1;
-                placingCursor = false;
-            }
-            else
-            {
-                selectedBuilding = 0;
-                placingCursor = true;
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            if (selectedBuilding == 1)
-            {
-                selectedBuilding = -1;
-                placingCursor = false;
-            }
-            else
-            {
-                selectedBuilding = 1;
-                placingCursor = true;
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            if (selectedBuilding == 2)
-            {
-                selectedBuilding = -1;
-                placingCursor = false;
-            }
-            else
-            {
-                selectedBuilding = 2;
-                placingCursor = true;
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            if (selectedBuilding == 3)
-            {
-                selectedBuilding = -1;
-                placingCursor = false;
-            }
-            else
-            {
-                selectedBuilding = 3;
-                placingCursor = true;
-            }
-        }*/
+        
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -186,10 +146,12 @@ public class BuildingManager : MonoBehaviour
         if (placingCursor == true)
         {
             Cursor.SetCursor(buildingCursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+            escText.gameObject.SetActive(true);
         }
         else
         {
             Cursor.SetCursor(initialCursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+            escText.gameObject.SetActive(false);
         }
     }
 
@@ -246,3 +208,4 @@ public class BuildingManager : MonoBehaviour
             return sprite.texture;
     }
 }
+
